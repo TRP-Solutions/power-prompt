@@ -7,7 +7,6 @@ class PowerPrompt {
 	private $stdin = null;
 
 	private $option = [];
-	private $input = '';
 
 	private function __construct() {
 		if($this->stdin===null) {
@@ -46,64 +45,114 @@ class PowerPrompt {
 		$this->setpos(3+sizeof($this->option),1);
 
 		$this->style('bold');
-		echo str_pad($command.':',5,' ');
+		echo str_pad($command.':',3,' ');
 		$this->style();
 		echo $title.PHP_EOL;
 	}
+	public function echo($str) {
+		echo $str;
+	}
 	public function select_option($title,$preset = '') {
-		$this->input = $preset;
-
 		while(true) {
 			$this->setpos(2,1);
 			echo $title.': ';
+			$this->clearline();
+
+			list($cmd,$key) = $this->get_key();
+			switch($cmd) {
+				case null;
+				if(true) {
+					$this->execute_option($key);
+					return;
+				}
+				case 'ESC'; return;
+			}
+
+		}
+	}
+	public function input_string($title,$input = '') {
+		$this->setpos(2,1);
+		echo $title.': ';
+		$offset = mb_strlen($title.': ');
+		$cursor = mb_strlen($input);
+
+		while(true) {
+			$this->setpos(2,$offset);
 			$this->style('red','bold');
-			echo $this->input;
+			echo $input;
 			$this->style();
 			$this->clearline();
-			$key = fgetc($this->stdin);
 
-			$this->setpos(10,1);
+			$this->setpos(2,$offset+$cursor);
 
-			if($key==chr(10)) { // Enter
-				$this->execute_option($this->input);
+			$a = mb_substr($input, 0, $cursor);
+			$b = mb_substr($input, $cursor);
+
+			list($cmd,$key) = $this->get_key();
+			switch($cmd) {
+				case null; $a .= $key; $cursor++; break;
+				case 'BS'; $a = mb_substr($a,0,-1); $cursor--; break;
+				case 'ENT'; return $input;
+				case 'ESC'; return null;
+				case 'DEL'; $b = mb_substr($b,1); break;
+				case 'CUF'; $cursor++; break;
+				case 'CUB'; $cursor--; break;
 			}
-			elseif($key==chr(4)) { // EOT
-				$this->exit();
-			}
-			elseif($key==chr(127) || $key==chr(8)) { // Backspace
-				$this->input = mb_substr($this->input,0,-1);
-			}
-			elseif($key==chr(9)) { // Tab
-			}
-			elseif($key==chr(27)) { // Escape
-				$subkey = $this->fgetc_purge();
-				switch($subkey) {
-					case ''; // ESC Key
-						$this->execute_option('ESC');
-						break;
-					case chr(91).chr(65): // Arrow Up
-						break;
-					case chr(91).chr(66): // Arrow Down
-						break;
-					default:
-						echo 'Unknown:'.bin2hex($subkey);
-				}
-			}
-			else {
-				$this->input .= $key;
-			}
+			$input = $a.$b;
+			if($cursor<0) $cursor=0;
+			if($cursor>mb_strlen($input)) $cursor=mb_strlen($input);
 		}
 	}
 	public function clear_screen() {
 		echo chr(27).'[2H'.chr(27).'[J';
 	}
 	private function execute_option($input) {
-		echo $input;
 		foreach($this->option as $var) {
 			if($var['command']===$input) {
 				$func = $var['function'];
 				$func(self::$instance);
 			}
+		}
+	}
+	private function get_key() {
+		$key = fgetc($this->stdin);
+		if($key===chr(10)) { // Line Feed
+			return ['ENT',null];
+		}
+		elseif($key===chr(127) || $key==chr(8)) { // Backspace
+			return ['BS',null];
+		}
+		elseif($key===chr(9)) { // Horizontal Tab
+			return ['TAB',null];
+		}
+		elseif($key===chr(27)) { // Escape
+			$subkey = $this->fgetc_purge();
+			switch($subkey) {
+				case ''; // ESC Key
+					return ['ESC',null];
+				case chr(91).chr(65): // Cursor Up
+					return ['CUU',null];
+				case chr(91).chr(66): // Cursor Down
+					return ['CUD',null];
+				case chr(91).chr(67): // Cursor Forward
+					return ['CUF',null];
+				case chr(91).chr(68): // Cursor Back
+					return ['CUB',null];
+				case chr(91).chr(51).chr(126): // Delete
+					return ['DEL',null];
+				default:
+					return ['UNK',bin2hex($subkey)];
+			}
+		}
+		elseif($key===chr(195) || $key===chr(240)) { // Extended table
+			$subkey = $this->fgetc_purge();
+			return [null,$key.$subkey];
+		}
+		elseif($key===chr(4)) { // End of Transmission
+			$this->exit();
+		}
+		else {
+			return [null,$key];
 		}
 	}
 	private function fgetc_purge() {
