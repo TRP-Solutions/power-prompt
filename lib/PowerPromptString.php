@@ -3,7 +3,7 @@ trait PowerPromptStringTrait {
 	public function get_string($title,$input = '') {
 		$this->set_pos(2,1);
 		$this->echo($title.': ');
-		$offset = mb_strlen($title.': ');
+		$offset = mb_strlen($title.': ')+1;
 		$cursor = mb_strlen($input);
 
 		while(true) {

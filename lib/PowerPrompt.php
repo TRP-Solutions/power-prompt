@@ -19,7 +19,7 @@ class PowerPrompt {
 			$this->width = exec('tput cols');
 			$this->height = exec('tput lines');
 
-			system('stty cbreak');
+			system('stty cbreak -echo');
 			$this->clear_screen();
 			$this->stdin = fopen('php://stdin', 'r');
 		}

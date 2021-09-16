@@ -66,23 +66,22 @@ trait PowerPromptIOTrait {
 	}
 	public function get_pos() {
 		// https://stackoverflow.com/questions/55892416/how-to-get-cursor-position-with-php-cli
-		$ttyprops = trim(`stty -g`);
-		system('stty -icanon -echo');
+		while(true) {
+			echo "\033[6n";
+			$buf = fread(STDIN, 16);
+			$matches = [];
+			preg_match('/^\033\[(\d+);(\d+)R$/', $buf, $matches);
 
-		echo "\033[6n";
-		$buf = fread(STDIN, 16);
-
-		system("stty '$ttyprops'");
-
-		$matches = [];
-		preg_match('/^\033\[(\d+);(\d+)R$/', $buf, $matches);
-
-		$row = intval($matches[1]);
-		$col = intval($matches[2]);
-		return [$row,$col];
+			if(!empty($matches[1]) && !empty($matches[2])) {
+				$row = intval($matches[1]);
+				$col = intval($matches[2]);
+				return [$row,$col];
+			}
+		}
 	}
 	public function clear_screen() {
 		echo chr(27).'[2H'.chr(27).'[J';
+		$this->set_pos(3,1);
 	}
 	private function clear_line() {
 		echo chr(27).'[K';

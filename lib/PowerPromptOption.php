@@ -5,31 +5,46 @@ trait PowerPromptOptionTrait {
 	public function reset_option() {
 		$this->option = [];
 	}
-	public function add_option($command,$function,$selected = false) {
-		$command = mb_strtoupper($command);
+	public function add_option($command,$function,$shortcut = false,$row = null,$col = null,$selected = false) {
+		if(!$row || !$col) list($row,$col) = $this->get_pos();
 
-		list($row,$col) = $this->get_pos();
 		$this->option[] = [
 			'command' => $command,
 			'function' => $function,
+			'shortcut' => mb_strtoupper($shortcut),
 			'row' => $row,
 			'col' => $col,
 			'selected' => $selected,
 		];
 	}
-	private function update_option() {
+	private function update_option($operation) {
+		$size = sizeof($this->option);
+		$current = -1;
 		foreach($this->option as $key => $value) {
-			$this->option[$key]['selected'] = (bool) !$value['selected'];
+			if($value['selected']) {
+				$current = $key;
+				break;
+			}
 		}
+
+		if($operation=='start') $current = 0;
+		if($operation=='end') $current = $size-1;
+		if($operation=='prev') $current--;
+		if($operation=='next') $current++;
+		if($current<0) $current = $size-1;
+		if($current>=$size) $current = 0;
+
+		foreach($this->option as $key => $value) {
+			$this->option[$key]['selected'] = (bool) ($current==$key);
+		}
+		$this->draw_option();
 	}
 	private function draw_option() {
 		foreach($this->option as $key => $value) {
 			$this->set_pos($value['row'],$value['col']);
 			$this->style('bold');
-			if($value['selected']) {
-				$this->style('underline','blue');
-			}
-			$this->echo('['.$value['command'].']');
+			if($value['selected']) $this->style('cyan');
+			$this->echo('['.$value['function'].']');
 			$this->style();
 		}
 	}
@@ -43,27 +58,40 @@ trait PowerPromptOptionTrait {
 			$this->clear_line();
 			if($wrong) {
 				$this->style('yellow','bold');
-				$this->echo('Not fould ('.$command.')');
+				$this->echo('Unknown shortcut ('.$shortcut.')');
 				$this->style();
 			}
 
 			list($cmd,$key) = $this->get_key();
 			switch($cmd) {
 				case null:
-					$command = mb_strtoupper($key);
+					$shortcut = mb_strtoupper($key);
 					$wrong = true;
 					foreach($this->option as $var) {
-						if($var['command']===$command) {
-							$wrong = false;
-							$func = $var['function'];
-							$func(self::$instance);
-							return;
+						if($var['shortcut']===$shortcut) {
+							return $var['command'];
 						}
 					}
 					break;
-				case 'CUF': $this->update_option(); $this->draw_option(); break;
-				case 'ESC':
-					return;
+				case 'ENT':
+					foreach($this->option as $var) {
+						if($var['selected']) {
+							return $var['command'];
+						}
+					}
+					break;
+				case 'CUU': $this->update_option('prev'); break;
+				case 'CUD': $this->update_option('next'); break;
+				case 'CUB': $this->update_option('start'); break;
+				case 'CUF': $this->update_option('end'); break;
+				default:
+					foreach($this->option as $var) {
+						if($var['shortcut']===$cmd) {
+							return $cmd;
+						}
+					}
+					$shortcut = $cmd;
+					$wrong = true;
 					break;
 			}
 		}
