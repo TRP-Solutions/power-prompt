@@ -34,7 +34,29 @@ trait PowerPromptStringTrait {
 			if($cursor>mb_strlen($input)) $cursor=mb_strlen($input);
 		}
 	}
+	public function get_binary($title) {
+		$this->set_pos(2,1);
+		$this->echo($title.': ');
+		$input = '';
 
+		while(true) {
+			$this->set_pos(2,mb_strlen($title.': '));
+			$this->style('bold');
+			$this->echo(number_format(mb_strlen($input),0,'','.').' bytes');
+			$this->style();
+			$this->clear_line();
+
+			list($cmd,$key) = $this->get_key();
+			switch($cmd) {
+				case null: $input .= $key; break;
+				case 'ENT': $input .= PHP_EOL; break;
+				case 'BS': $input = mb_substr($input,0,-1); break;
+				case 'ESC': return null;
+				case 'DEL': $input = ''; break;
+				case 'EOT': return $input; break;
+			}
+		}
+	}
 	public function update_string($title,&$input) {
 		$new = $this->get_string($title,$input);
 		if($new!==null) {
