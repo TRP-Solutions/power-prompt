@@ -41,7 +41,7 @@ trait PowerPromptIOTrait {
 			return [null,$key.$subkey];
 		}
 		elseif($key===chr(4)) { // End of Transmission
-			$this->exit();
+			return ['EOT',null];
 		}
 		else {
 			return [null,$key];

@@ -27,6 +27,7 @@ trait PowerPromptStringTrait {
 				case 'DEL': $b = mb_substr($b,1); break;
 				case 'CUF': $cursor++; break;
 				case 'CUB': $cursor--; break;
+				case 'EOT': $this->exit(); break;
 			}
 			$input = $a.$b;
 			if($cursor<0) $cursor=0;

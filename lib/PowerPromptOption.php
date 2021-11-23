@@ -84,6 +84,7 @@ trait PowerPromptOptionTrait {
 				case 'CUD': $this->update_option('next'); break;
 				case 'CUB': $this->update_option('start'); break;
 				case 'CUF': $this->update_option('end'); break;
+				case 'EOT': $this->exit(); break;
 				default:
 					foreach($this->option as $var) {
 						if($var['shortcut']===$cmd) {
