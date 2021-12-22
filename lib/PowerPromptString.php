@@ -57,6 +57,22 @@ trait PowerPromptStringTrait {
 			}
 		}
 	}
+	public function get_password($title) {
+		$this->set_pos(2,1);
+		$this->echo($title.': ');
+		$input = '';
+
+		while(true) {
+			list($cmd,$key) = $this->get_key();
+			switch($cmd) {
+				case null: $input .= $key; break;
+				case 'ENT': return $input;
+				case 'BS': $input = mb_substr($input,0,-1); break;
+				case 'ESC': return null;
+				case 'DEL': $input = ''; break;
+			}
+		}
+	}
 	public function update_string($title,&$input) {
 		$new = $this->get_string($title,$input);
 		if($new!==null) {
