@@ -1,7 +1,13 @@
 <?php
 trait PowerPromptIOTrait {
-	public function echo($str) {
-		echo $str;
+	public function echo($string,$length = null,$pad_string = ' ',$pad_type = STR_PAD_RIGHT) {
+		if($length !== null) {
+			$length_add = strlen($string) - mb_strlen($string);
+			echo str_pad($string,$length + $length_add,$pad_string,$pad_type);
+		}
+		else {
+			echo $string;
+		}
 	}
 	public function lf() {
 		echo PHP_EOL;

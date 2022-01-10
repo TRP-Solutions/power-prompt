@@ -30,11 +30,11 @@ class PowerPrompt {
 		$len = mb_strlen($text)+2;
 
 		$this->style('white');
-		$this->echo(str_pad('',ceil(($this->width-$len)/2),'='));
+		$this->echo('',ceil(($this->width-$len)/2),'=');
 		$this->style('blue','bold');
 		$this->echo(' '.$text.' ');
 		$this->style('white','normal');
-		$this->echo(str_pad('',floor(($this->width-$len)/2),'='));
+		$this->echo('',floor(($this->width-$len)/2),'=');
 		$this->style();
 		$this->lf();
 	}
