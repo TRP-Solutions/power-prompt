@@ -19,6 +19,8 @@ class PowerPrompt {
 			$this->width = exec('tput cols');
 			$this->height = exec('tput lines');
 
+			$this->stty_state = shell_exec('stty -g');
+
 			system('stty cbreak -echo');
 			$this->clear_screen();
 			$this->stdin = fopen('php://stdin', 'r');
@@ -38,10 +40,11 @@ class PowerPrompt {
 		$this->style();
 		$this->lf();
 	}
-	private function exit() {
+	public function exit($msg = 'Bye') {
 		$this->clear_screen();
-		$this->echo('Bye');
+		$this->echo($msg);
 		$this->lf();
+		system('stty '.$this->stty_state);
 		exit;
 	}
 	public static function getInstance() {
