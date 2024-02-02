@@ -92,6 +92,9 @@ trait PowerPromptIOTrait {
 	private function clear_line() {
 		echo chr(27).'[K';
 	}
+	public function beep() {
+		echo chr(7);
+	}
 	public function style(...$styles) {
 		static $_styles = [
 			'red'				=> "[31m",
