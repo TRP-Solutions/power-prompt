@@ -1,4 +1,10 @@
 <?php
+/*
+PowerPrompt is licensed under the Apache License 2.0 license
+https://github.com/TRP-Solutions/power-prompt/blob/main/LICENSE
+*/
+declare(strict_types=1);
+
 trait PowerPromptIOTrait {
 	public function echo($string,$length = null,$pad_string = ' ',$pad_type = STR_PAD_RIGHT) {
 		if($length !== null) {

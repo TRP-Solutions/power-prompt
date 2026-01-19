@@ -1,4 +1,10 @@
 <?php
+/*
+PowerPrompt is licensed under the Apache License 2.0 license
+https://github.com/TRP-Solutions/power-prompt/blob/main/LICENSE
+*/
+declare(strict_types=1);
+
 trait PowerPromptStringTrait {
 	public function get_string($title,$input = '') {
 		$this->set_pos(2,1);

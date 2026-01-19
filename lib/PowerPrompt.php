@@ -1,4 +1,10 @@
 <?php
+/*
+PowerPrompt is licensed under the Apache License 2.0 license
+https://github.com/TRP-Solutions/power-prompt/blob/main/LICENSE
+*/
+declare(strict_types=1);
+
 require_once __DIR__.'/PowerPromptIO.php';
 require_once __DIR__.'/PowerPromptOption.php';
 require_once __DIR__.'/PowerPromptString.php';
