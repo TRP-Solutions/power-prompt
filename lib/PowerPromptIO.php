@@ -6,7 +6,7 @@ https://github.com/TRP-Solutions/power-prompt/blob/main/LICENSE
 declare(strict_types=1);
 
 trait PowerPromptIOTrait {
-	public function echo($string,$length = null,$pad_string = ' ',$pad_type = STR_PAD_RIGHT) {
+	public function echo(string $string,?int $length = null,string $pad_string = ' ',int $pad_type = STR_PAD_RIGHT) : void {
 		if($length !== null) {
 			$length_add = strlen($string) - mb_strlen($string);
 			echo str_pad($string,$length + $length_add,$pad_string,$pad_type);
@@ -15,10 +15,10 @@ trait PowerPromptIOTrait {
 			echo $string;
 		}
 	}
-	public function lf() {
+	public function lf() : void {
 		echo PHP_EOL;
 	}
-	private function get_key() {
+	private function get_key() : array {
 		$key = fgetc($this->stdin);
 		if($key===chr(10)) { // Line Feed
 			return ['ENT',null];
@@ -59,7 +59,7 @@ trait PowerPromptIOTrait {
 			return [null,$key];
 		}
 	}
-	private function fgetc_purge() {
+	private function fgetc_purge() : string {
 		$return = '';
 
 		while(true) {
@@ -73,10 +73,10 @@ trait PowerPromptIOTrait {
 			}
 		}
 	}
-	public function set_pos($row,$col) {
+	public function set_pos(int $row,int $col) : void {
 		echo chr(27).'['.$row.';'.$col.'H';
 	}
-	public function get_pos() {
+	public function get_pos() : array {
 		// https://stackoverflow.com/questions/55892416/how-to-get-cursor-position-with-php-cli
 		while(true) {
 			echo "\033[6n";
@@ -91,17 +91,17 @@ trait PowerPromptIOTrait {
 			}
 		}
 	}
-	public function clear_screen() {
+	public function clear_screen() : void {
 		echo chr(27).'[2H'.chr(27).'[J';
 		$this->set_pos(3,1);
 	}
-	private function clear_line() {
+	private function clear_line() : void {
 		echo chr(27).'[K';
 	}
-	public function beep() {
+	public function beep() : void {
 		echo chr(7);
 	}
-	public function style(...$styles) {
+	public function style(string ...$styles) : void {
 		static $_styles = [
 			'red'				=> "[31m",
 			'green'			=> "[32m",

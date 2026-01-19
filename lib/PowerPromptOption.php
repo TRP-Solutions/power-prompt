@@ -17,7 +17,7 @@ trait PowerPromptOptionTrait {
 		$this->option[] = [
 			'command' => $command,
 			'function' => $function,
-			'shortcut' => mb_strtoupper($shortcut),
+			'shortcut' => mb_strtoupper((string) $shortcut),
 			'row' => $row,
 			'col' => $col,
 			'selected' => $selected,

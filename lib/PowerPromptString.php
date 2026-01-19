@@ -6,7 +6,7 @@ https://github.com/TRP-Solutions/power-prompt/blob/main/LICENSE
 declare(strict_types=1);
 
 trait PowerPromptStringTrait {
-	public function get_string($title,$input = '') {
+	public function get_string(string $title,string $input = '') : ?string {
 		$this->set_pos(2,1);
 		$this->echo($title.': ');
 		$offset = mb_strlen($title.': ')+1;
@@ -40,7 +40,7 @@ trait PowerPromptStringTrait {
 			if($cursor>mb_strlen($input)) $cursor=mb_strlen($input);
 		}
 	}
-	public function get_binary($title) {
+	public function get_binary(string $title) : ?string {
 		$this->set_pos(2,1);
 		$this->echo($title.': ');
 		$input = '';
@@ -63,7 +63,7 @@ trait PowerPromptStringTrait {
 			}
 		}
 	}
-	public function get_password($title) {
+	public function get_password(string $title) : ?string {
 		$this->set_pos(2,1);
 		$this->echo($title.': ');
 		$input = '';
@@ -79,7 +79,7 @@ trait PowerPromptStringTrait {
 			}
 		}
 	}
-	public function update_string($title,&$input) {
+	public function update_string(string $title,string &$input) : void {
 		$new = $this->get_string($title,$input);
 		if($new!==null) {
 			$input = trim($new);
