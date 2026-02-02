@@ -14,22 +14,24 @@ class PowerPrompt {
 	use PowerPromptOptionTrait;
 	use PowerPromptStringTrait;
 
-	private static $instance = null;
+	private static PowerPrompt $instance;
 
-	private $width = null;
-	private $height = null;
-	private $stdin = null;
+	private int $width;
+	private int $height;
+	private ?string $stty_state = null;
+	private mixed $stdin;
 
 	private function __construct() {
-		if($this->stdin===null) {
-			$this->width = exec('tput cols');
-			$this->height = exec('tput lines');
-
-			$this->stty_state = shell_exec('stty -g');
-
+		$output = $result_code = null;
+		$this->stty_state = exec('stty -g 2>/dev/null',$output,$result_code);
+		if($result_code===0) {
+			$this->width = (int) exec('tput cols');
+			$this->height = (int) exec('tput lines');
 			system('stty cbreak -echo');
-			$this->clear_screen();
 			$this->stdin = fopen('php://stdin', 'r');
+		}
+		else {
+			$this->stty_state = null;
 		}
 	}
 	public function header(string $text) : void {
@@ -46,15 +48,18 @@ class PowerPrompt {
 		$this->style();
 		$this->lf();
 	}
-	public function exit(string $msg = 'Bye') : void {
-		$this->clear_screen();
-		$this->echo($msg);
-		$this->lf();
-		system('stty '.$this->stty_state);
+	public function exit(?string $msg = 'Bye') : void {
+		if($msg !== null) {
+			$this->echo($msg);
+			$this->lf();
+		}
+		if($this->stty_state !== null) {
+			system('stty '.$this->stty_state);
+		}
 		exit;
 	}
 	public static function getInstance() : PowerPrompt {
-		if(self::$instance == null) {
+		if(!isset(self::$instance)) {
 			self::$instance = new PowerPrompt();
 		}
 		return self::$instance;
